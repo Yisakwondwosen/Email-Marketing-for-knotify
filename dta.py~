@@ -1,0 +1,174 @@
+import smtplib
+import time
+import random
+import logging
+import base64
+import os
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+# --- AUTHENTICATION ---
+SMTP_SERVER = "smtp.zoho.com"
+SMTP_PORT = 465
+SENDER_EMAIL = "yisehak@knotifyapp.com" 
+SENDER_PASSWORD = "Imagine4488$" 
+CC_EMAIL = "beatrice.ndinda@rlceastafrica.org"
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# --- ALREADY SENT (The 4 successful emails from your last run) ---
+already_sent = [
+    "hazaba19@gmail.com", 
+    "abdirisak.gelle@gmail.com", 
+    "abdullahi@mtii.edu.so", 
+    "abunajk@gmail.com"
+]
+
+# --- RECIPIENTS ---
+recipients = [
+    ("Abel", "abelngengele@gmail.com"), ("Abigael", "gaellrop@gmail.com"),
+    ("Adelaide", "adelaidejachi33@gmail.com"), ("Advaxe", "advaxe.mucatcha@gmail.com"),
+    ("Alex", "ches7alex@gmail.com"), ("Almegdad", "megdad.elfaki@gmail.com"),
+    ("Alphonse", "alphonsebyembao8@gmail.com"), ("Annet", "mnuwayo@gmail.com"),
+    ("Janet", "ansasirajanet19@gmail.com"), ("Anuari", "a.said@mediaconvergency.co.tz"),
+    ("Ardine", "nukuriardinemartine@gmail.com"), ("Assila", "assilaabdallah@gmail.com"),
+    ("Muluk", "mulukluka22@gmail.com"), ("Joyce", "joycegerold0@gmail.com"),
+     ("Yisehak", "yitzakwondwosen@gmail.com"), ("Yisehak", "yitzakwondwosen@gmail.com")
+    ("Martha", "atukundamartha911@gmail.com"), ("Awut", "violadut20@gmail.com"),
+    ("Bamlak", "bamlakfellekecc@gmail.com"), ("Barnaba", "barnabaosman1916@gmail.com"),
+    ("Bereket", "bekagetnet@gmail.com"), ("Betelhem", "betelhemghere21@gmail.com"),
+    ("Tabitha", "btabbynamwone@gmail.com"), ("Peter", "aterchan54@gmail.com"),
+    ("Joel", "chemustojoel@gmail.com"), ("Jean", "jeankarani@gmail.com"),
+    ("Collins", "collinsyogoh@gmail.com"), ("Ella", "ellairadukunda06@gmail.com"),
+    ("Emmanuel", "bida@bidathomas.me"), ("Ezra", "jimmyezra15@gmail.com"),
+    ("Erick", "erickmnyali14@gmail.com"), ("Esayas", "esayasyohannes12@gmail.com"),
+    ("Esta", "esta@medpack.co.tz"), ("Fabrisio", "fabrisioyibrah@gmail.com"),
+    ("Feven", "fevenalemu2008@gmail.com"), ("Gloriah", "gloriahtirot@gmail.com"),
+    ("Grace", "21gracedavid@gmail.com"), ("Grace", "graceknamatende@gmail.com"),
+    ("Isaac", "isaacmuhumuza881@gmail.com"), ("Israel", "israelasfaw7@gmail.com"),
+    ("James", "jamesmayenmachiek@gmail.com"), ("Jesca", "jescamagashi101@gmail.com"),
+    ("Joie", "umujoie2002@gmail.com"), ("Kadidja", "fallkadidja20@gmail.com"),
+    ("Elisha", "elishakakanyero5@gmail.com"), ("Kalo", "kalohissen@gmail.com"),
+    ("Keisha", "keitesiaisha@gmail.com"), ("Lillian", "l9chambiri@gmail.com"),
+    ("Lucy", "lucytomeka@gmail.com"), ("Lucy", "lnnjoroge@dtbafrica.com"),
+    ("Lulia", "bereketlulia942@gmail.com"), ("Lynet", "kosgeylynet@gmail.com"),
+    ("Magreth", "magrethdmkumbo@gmail.com"), ("Peace", "peacemasika8@gmail.com"),
+    ("Meklit", "meklitmnot@gmail.com"), ("Mohamed", "mahamedkadir12@gmail.com"),
+    ("Ezra", "mrezy45@gmail.com"), ("PRISCA", "priscamukelenga006@gmail.com"),
+    ("Munguzo", "joe604590@gmail.com"), ("EmpowerRise", "empowerrisehub@gmail.com"),
+    ("Nahom", "nahomkilng@gmail.com"), ("Trudy", "trudyvanitah@gmail.com"),
+    ("Shakirah", "nakalemashakirah6@gmail.com"), ("Nancy", "ishimwenancysabrina1@gmail.com"),
+    ("Nancy", "nancygakii25@gmail.com"), ("Natnael", "natnaeldechasa78@gmail.com"),
+    ("Venuste", "ndayivenuste11@gmail.com"), ("Ruth", "zzindarutz@gmail.com"),
+    ("Ratifa", "ratifaniringiyimana79@gmail.com"), ("Ruth", "nibitangaruth0@gmail.com"),
+    ("Ann", "njukiann4@gmail.com"), ("Noella", "dushakenoella@gmail.com"),
+    ("Nyuon", "nyuonlual7@gmail.com"), ("Paul", "pauln5816@gmail.com"),
+    ("Racheal", "rachealmonic5@gmail.com"), ("Rodney", "rodney.omondi254@gmail.com"),
+    ("HARUUN", "yakarimu.2024@gmail.com"), ("Salim", "salimseleman722@gmail.com"),
+    ("Samson", "kukusaeed1996@gmail.com"), ("Selamawit", "selamsun7@gmail.com"),
+    ("AFRICAN", "africa.com.et@gmail.com"), ("Shamid", "mukalushamid@gmail.com"),
+    ("Sijin", "sijin.tuony@nobilisplus.ch"), ("Simon", "simon.ntugi@gmail.com"),
+    ("Soliana", "habteabsoliana@gmail.com"), ("Ivan", "iuwadukunze@gmail.com"),
+    ("Ibrahim", "ibrahim@zati.africa"), ("Wenslous", "wayneotemahegesa@gmail.com"),
+    ("Nebiyu", "nebiyugirma19@gmail.com"), ("Tim", "timbambala6@gmail.com"),
+    ("Tinbite", "dawittinbite22@gmail.com"), ("Xaviour", "alukuxaviour@gmail.com"),
+    ("Zainab", "zeynoba00@gmail.com"), ("Zamzam", "zammc05@gmail.com")
+    
+]
+
+# --- IMAGE ENCODING ---
+IMAGE_PATH = "Assets/Isaac.JPG"
+img_data = ""
+if os.path.exists(IMAGE_PATH):
+    with open(IMAGE_PATH, "rb") as img_file:
+        img_data = base64.b64encode(img_file.read()).decode('utf-8')
+else:
+    logging.warning(f"CRITICAL: Image not found at {IMAGE_PATH}. Check your directory structure.")
+
+def send_direct_email(first_name, email_addr):
+    try:
+        msg = MIMEMultipart('alternative')
+        msg['From'] = f"Yisehak Wondwossen <{SENDER_EMAIL}>"
+        msg['To'] = email_addr
+        msg['Cc'] = CC_EMAIL
+        msg['Subject'] = f"{first_name} - Quick DTA Cohort 'ask' (KnotifyApp)"
+
+        html_body = f"""
+        <html>
+        <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #ffffff; padding: 20px;">
+            <div style="max-width: 600px; margin: auto; background-color: #ffffff; border: 1px solid #eeeeee;">
+                <div style="background-color: #000000; padding: 30px; text-align: center;">
+                    <h1 style="margin: 0; color: #ffffff; font-size: 24px; letter-spacing: 3px; font-weight: bold;">KNOTIFY</h1>
+                </div>
+                <div style="padding: 40px; color: #000000; line-height: 1.6;">
+                    <p style="font-size: 16px;">Hey {first_name},</p>
+                    <p>While we were navigating the RLC program, I was obsessed with one thing: <b>Closing the school communication gap in East Africa.</b></p>
+                    
+                    <p>As a fellow DTA Cohort 1 member, I’m giving you early access to the KnotifyApp MVP. I’ve pre-loaded these testing profiles for you to explore:</p>
+                    
+                    <div style="background-color: #f4f4f4; padding: 20px; border-radius: 4px; margin: 20px 0; border-left: 4px solid #000;">
+                        <p style="margin: 0 0 10px 0;"><b>1. SCHOOL ADMIN (Full Management View):</b><br>UserName: 934268954 | Pass: Passworddta2026!</p>
+                        <p style="margin: 0 0 10px 0;"><b>2. TEACHER ACCESS:</b><br>Phone: 0911223344 | Pass: Knotify@2026</p>
+                        <p style="margin: 0;"><b>3. PARENT ACCESS:</b><br>Phone: 0922334455 | Pass: Parent#Test</p>
+                    </div>
+
+                    <p>Could you give me 5 minutes of your "DTA eyes"? I value your perspective on whether this hits the mark for our local educational infrastructure.</p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="https://knotifyapp.com" style="background-color: #000000; color: #ffffff; padding: 15px 30px; text-decoration: none; font-weight: bold; border-radius: 2px; display: inline-block;">EXPLORE THE MVP</a>
+                    </div>
+                </div>
+                
+                <div style="padding: 30px 40px; background-color: #ffffff; border-top: 1px solid #eeeeee;">
+                    <table border="0" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td>
+                                <img src="data:image/jpeg;base64,{img_data}" alt="Isaac" style="width: 75px; height: 75px; border-radius: 6px; object-fit: cover; display: block;">
+                            </td>
+                            <td style="padding-left: 20px;">
+                                <p style="margin: 0; font-size: 16px; font-weight: bold; color: #000;">Yisehak (Isaac) Wondwossen</p>
+                                <p style="margin: 2px 0; font-size: 13px; color: #666;">Chief Executive Officer & Growth Lead</p>
+                                <p style="margin: 0; font-size: 13px;"><a href="https://knotifyapp.com" style="color: #000; text-decoration: underline;">knotifyapp.com</a></p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        msg.attach(MIMEText(html_body, 'html'))
+
+        with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
+            server.login(SENDER_EMAIL, SENDER_PASSWORD)
+            server.send_message(msg)
+            
+        logging.info(f"SUCCESS: Sent to {first_name}")
+        return True
+    except Exception as e:
+        logging.error(f"FAIL: {email_addr} | Error: {e}")
+        return False
+
+def main():
+    total_count = len(recipients)
+    sent_now = 0
+    
+    logging.info(f"Resuming campaign. {total_count} recipients remaining (excluding already sent).")
+
+    for name, email in recipients:
+        # Final safety check against duplicates
+        if email.lower() in [e.lower() for e in already_sent]:
+            continue
+            
+        if send_direct_email(name, email):
+            sent_now += 1
+        
+        # Throttling 60-120 seconds for safety
+        wait = random.randint(60, 120)
+        logging.info(f"Progress: {sent_now} sent this session. Cooling down {wait}s...")
+        time.sleep(wait)
+
+    logging.info(f"Done. Session sent: {sent_now}. Total Cohort Reach: {sent_now + len(already_sent)}.")
+
+if __name__ == "__main__":
+    main()
