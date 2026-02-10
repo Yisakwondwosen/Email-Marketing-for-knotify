@@ -5,8 +5,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 # --- CREDENTIALS ---
-SENDER_EMAIL = "yisehak@knotifyapp.com"
-SENDER_PASSWORD = "Imagine4488$" 
+SENDER_EMAIL = "*******"
+SENDER_PASSWORD = "*******" 
 CALENDLY_LINK = "https://calendly.com/d/cx9x-gdd-2kr/meeting"
 
 # --- RECIPIENTS ---
