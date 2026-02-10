@@ -9,8 +9,8 @@ from email.mime.image import MIMEImage
 SMTP_SERVER = "in-v3.mailjet.com"
 SMTP_PORT = 587
 SENDER_EMAIL = "yisehak@knotifyapp.com" 
-API_KEY = "2cc2da20a86382a903744f4e3ce8508a"
-API_SECRET = "a05402d509742bc6e9b7da80c15d0bc9"
+API_KEY = "***"
+API_SECRET = "***"
 
 CALENDLY_LINK = "https://calendly.com/d/cx9x-gdd-2kr/meeting"
 TEST_RECIPIENT = "yitzakwondwosen@gmail.com"
